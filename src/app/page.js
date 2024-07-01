@@ -26,7 +26,7 @@ export default function Home() {
           return null;
       }
     } else {
-      return <div className="text-gray-600">Select a file to open it.</div>;
+      return <div className="p-5 text-white">Select a file to open it.</div>;
     }
   };
  
