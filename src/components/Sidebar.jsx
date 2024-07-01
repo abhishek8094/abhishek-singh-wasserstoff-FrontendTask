@@ -73,12 +73,12 @@ const Sidebar = ({ onSelectFile }) => {
     <>
       <div className="flex flex-col h-screen">
         <div className="bg-[pink] p-3">
-          <h2 className="text-lg font-bold mb-4">Folders</h2>
+          <h2 className="text-lg font-bold text-black px-2 mb-4">Folders</h2>
           <div className="mb-4">
             <input
               type="text"
               placeholder="New Folder Name"
-              className="w-[10rem] p-2 border text-black border-gray-300 rounded-md mb-2"
+              className="w-[10rem] p-2 border  text-black border-gray-300 rounded-md mb-2"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
             />
