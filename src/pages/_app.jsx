@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { IDEProvider } from '../contexts/IDEContext';
+import { IDEProvider } from "../contexts/IDEContext";
 
 function MyApp({ Component, pageProps }) {
   return (

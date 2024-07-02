@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import Modal from '../components/Modal';
+import React, { createContext, useState, useEffect, useContext } from "react";
+import Modal from "../components/Modal";
 
 const IDEContext = createContext();
 
@@ -7,8 +7,8 @@ const IDEContext = createContext();
 export const IDEProvider = ({ children }) => {
   const initialStructure = [
     {
-      type: 'folder',
-      name: 'root',
+      type: "folder",
+      name: "root",
       children: [],
       path: [],
     },
@@ -18,13 +18,13 @@ export const IDEProvider = ({ children }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContents, setFileContents] = useState({});
   const [isModalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState('');
+  const [modalType, setModalType] = useState("");
   const [currentPath, setCurrentPath] = useState([]);
 
   // Load data from localStorage when component is mounted
   useEffect(() => {
-    const storedStructure = localStorage.getItem('ide_structure');
-    const storedFileContents = localStorage.getItem('ide_fileContents');
+    const storedStructure = localStorage.getItem("ide_structure");
+    const storedFileContents = localStorage.getItem("ide_fileContents");
 
     if (storedStructure) {
       setStructure(JSON.parse(storedStructure));
@@ -36,11 +36,11 @@ export const IDEProvider = ({ children }) => {
 
   // Update localStorage whenever there is a change in structure or fileContents
   useEffect(() => {
-    localStorage.setItem('ide_structure', JSON.stringify(structure));
+    localStorage.setItem("ide_structure", JSON.stringify(structure));
   }, [structure]);
 
   useEffect(() => {
-    localStorage.setItem('ide_fileContents', JSON.stringify(fileContents));
+    localStorage.setItem("ide_fileContents", JSON.stringify(fileContents));
   }, [fileContents]);
 
   // Function to add a folder or file to the structure recursively
@@ -50,7 +50,7 @@ export const IDEProvider = ({ children }) => {
     }
 
     return currentStructure.map((node) => {
-      if (node.type === 'folder' && node.name === path[0]) {
+      if (node.type === "folder" && node.name === path[0]) {
         return {
           ...node,
           children: addFolderOrFile(node.children, path.slice(1), item),
@@ -63,14 +63,14 @@ export const IDEProvider = ({ children }) => {
   // Handlers for creating new folder
   const handleCreateFolder = (path = []) => {
     setModalOpen(true);
-    setModalType('folder');
+    setModalType("folder");
     setCurrentPath(path);
   };
 
   // Handlers for creating new file
   const handleCreateFile = (path = []) => {
     setModalOpen(true);
-    setModalType('file');
+    setModalType("file");
     setCurrentPath(path);
   };
 
@@ -91,25 +91,25 @@ export const IDEProvider = ({ children }) => {
     if (path.length === 0) {
       return currentStructure;
     }
-  
+
     return currentStructure.filter((node) => {
       if (node.name === path[0]) {
         if (path.length === 1) {
           return false; // Delete the node
-        } else if (node.type === 'folder') {
+        } else if (node.type === "folder") {
           node.children = deleteFolderOrFile(node.children, path.slice(1));
         }
       }
       return true;
     });
   };
-  
+
   // Handler for deleting folder or file
   const handleDelete = (path, type) => {
     setStructure((prevStructure) => deleteFolderOrFile(prevStructure, path));
-  
-    if (type === 'file') {
-      const filePath = path.join('/');
+
+    if (type === "file") {
+      const filePath = path.join("/");
       setFileContents((prevContents) => {
         const newContents = { ...prevContents };
         delete newContents[filePath];
@@ -122,20 +122,28 @@ export const IDEProvider = ({ children }) => {
   const handleModalSubmit = (name) => {
     setModalOpen(false);
     if (name) {
-      const item = { type: modalType, name, children: modalType === 'folder' ? [] : undefined, path: currentPath };
-      const filePath = currentPath.length > 0 ? `${currentPath.join('/')}/${name}` : name;
-      setStructure((prevStructure) => addFolderOrFile(prevStructure, currentPath, item));
+      const item = {
+        type: modalType,
+        name,
+        children: modalType === "folder" ? [] : undefined,
+        path: currentPath,
+      };
+      const filePath =
+        currentPath.length > 0 ? `${currentPath.join("/")}/${name}` : name;
+      setStructure((prevStructure) =>
+        addFolderOrFile(prevStructure, currentPath, item)
+      );
 
-      if (modalType === 'file') {
-        const extension = name.split('.').pop();
+      if (modalType === "file") {
+        const extension = name.split(".").pop();
         let content;
 
-        if (extension === 'ed') {
-          content = '';
-        } else if (extension === 'note' || extension === 'lt') {
+        if (extension === "ed") {
+          content = "";
+        } else if (extension === "note" || extension === "lt") {
           content = [];
-        } else if (extension === 'readme') {
-          content = '';
+        } else if (extension === "readme") {
+          content = "";
         } else {
           content = null;
         }
@@ -158,7 +166,7 @@ export const IDEProvider = ({ children }) => {
         handleCreateFile,
         handleFileClick,
         updateFileContent,
-        handleDelete
+        handleDelete,
       }}
     >
       {children}
@@ -166,7 +174,7 @@ export const IDEProvider = ({ children }) => {
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleModalSubmit}
-        isFolder={modalType === 'folder'}
+        isFolder={modalType === "folder"}
       />
     </IDEContext.Provider>
   );
