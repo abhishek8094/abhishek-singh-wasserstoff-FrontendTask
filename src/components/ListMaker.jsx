@@ -1,38 +1,45 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-const ListMaker = () => {
-  const [lists, setLists] = useState(['Sample Item']);
-  const [newItem, setNewItem] = useState('');
+// List editor for .lt files
+const ListMaker = ({ list, setList, filePath, fileName }) => {
+    const [itemText, setItemText] = useState('');
 
-  const handleAddItem = () => {
-    setLists([...lists, newItem]);
-    setNewItem('');
-  };
+    const addItem = () => {
+        setList(filePath, [...list, itemText]);
+        setItemText('');
+    };
 
-  return (
-    <div className="bg-[#aba1a1] text-black p-4 shadow-md rounded-lg">
-      <input
-        className="border p-2 mb-2 w-full"
-        type="text"
-        value={newItem}
-        onChange={(e) => setNewItem(e.target.value)}
-        placeholder="New list item"
-      />
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={handleAddItem}
-      >
-        Add Item
-      </button>
-      <ul className="mt-4">
-        {lists.map((item, index) => (
-          <li key={index} className="p-2 bg-gray-200 my-2 rounded">
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    return (
+        <div className="p-6 bg-gray-800 h-full text-white">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-lg font-bold text-center text-vscode-text">{fileName}</h1>
+            </div>
+            <div className="max-w-md mx-auto mb-4 flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                <input
+                    value={itemText}
+                    onChange={(e) => setItemText(e.target.value)}
+                    className="flex-1 border border-gray-600 p-2 rounded-lg shadow-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your item here"
+                />
+                <button
+                    onClick={addItem}
+                    className="bg-blue-600 text-white p-2 rounded-lg shadow-md hover:bg-blue-700"
+                >
+                    Add Item
+                </button>
+            </div>
+            <ul className="max-w-md mx-auto">
+                {list.map((item, index) => (
+                    <li
+                        key={index}
+                        className="border border-gray-600 p-2 mb-2 rounded-lg bg-gray-700 text-white shadow-md"
+                    >
+                        {item}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 };
 
 export default ListMaker;
