@@ -1,58 +1,106 @@
 import React, { useState } from "react";
-import { marked } from "marked";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-// ReadmePreviewer for editing and previewing .readme files
-const ReadmePreviewer = ({ content, setReadme, filePath, fileName }) => {
-  const [previewMode, setPreviewMode] = useState(false);
-  const [formattedContent, setFormattedContent] = useState(content);
+// Notes editor for .note files
+const NoteMaker = ({ notes, setNotes, filePath, fileName }) => {
+  const [noteText, setNoteText] = useState("");
+  const categories = ["To Do", "In Progress", "Done"];
 
-  const togglePreview = () => {
-    setPreviewMode(!previewMode);
-    if (!previewMode) {
-      setFormattedContent(content);
-    }
+  const addNote = () => {
+    if (noteText.trim() === "") return;
+    const updatedNotes = [
+      ...notes,
+      { id: `note-${notes.length}`, text: noteText, category: "To Do" },
+    ];
+    setNotes(filePath, updatedNotes);
+    setNoteText("");
   };
 
-  const handleInputChange = (newContent) => {
-    setFormattedContent(newContent);
-    setReadme(filePath, newContent);
+  const handleOnDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const newNotes = Array.from(notes);
+    const [movedNote] = newNotes.splice(result.source.index, 1);
+    movedNote.category = result.destination.droppableId;
+    newNotes.splice(result.destination.index, 0, movedNote);
+
+    setNotes(filePath, newNotes);
   };
 
-  // Function to render markdown content as HTML
-  const renderMarkdown = (markdown) => {
-    return { __html: marked.parse(markdown) }; // Use marked library to parse markdown to HTML
+  const deleteNote = (noteId) => {
+    const updatedNotes = notes.filter((note) => note.id !== noteId);
+    setNotes(filePath, updatedNotes);
   };
 
   return (
     <div className="p-6 bg-gray-800 h-full text-white">
-      <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold">{fileName}</h2>
-        <h2 className="text-lg font-semibold">Readme Editor</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg font-bold text-center text-vscode-text">
+          {fileName}
+        </h1>
+      </div>
+      <div className="max-w-md mx-auto mb-4 flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+        <input
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+          className="flex-1 border border-gray-600 p-2 rounded-lg shadow-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter your note here"
+        />
         <button
-          onClick={togglePreview}
+          onClick={addNote}
           className="bg-blue-600 text-white p-2 rounded-lg shadow-md hover:bg-blue-700"
         >
-          {previewMode ? "Edit" : "Preview"}
+          Add Note
         </button>
       </div>
-      {!previewMode ? (
-        <textarea
-          value={formattedContent}
-          onChange={(e) => handleInputChange(e.target.value)}
-          className="w-full min-h-[300px] md:min-h-[400px] border border-gray-600 p-2 rounded-lg shadow-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-y-auto"
-          placeholder="Type your README content here..."
-        />
-      ) : (
-        <div
-          className="markdown-body h-[90%] overflow-y-auto bg-gray-700 text-white p-4"
-          style={{ minHeight: "300px" }}
-        >
-          {/* Render the markdown content as HTML */}
-          <div dangerouslySetInnerHTML={renderMarkdown(formattedContent)} />
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <div className="flex flex-col md:flex-row md:space-x-4">
+          {categories.map((category) => (
+            <Droppable key={category} droppableId={category}>
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex-1 p-4 bg-gray-700 rounded-lg shadow-md mt-4 md:mt-0"
+                >
+                  <h2 className="text-lg font-semibold mb-4 text-gray-200">
+                    {category}
+                  </h2>
+                  {notes
+                    .filter((note) => note.category === category)
+                    .map((note, index) => (
+                      <Draggable
+                        key={note.id}
+                        draggableId={note.id}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="border border-gray-600 p-2 mb-2 relative note-item rounded-lg bg-gray-600 text-white shadow-md"
+                          >
+                            {note.text}
+                            <button
+                              onClick={() => deleteNote(note.id)}
+                              className="delete-button text-red-500 absolute top-1 right-1 bg-transparent"
+                            >
+                              &#x2715;
+                            </button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          ))}
         </div>
-      )}
+      </DragDropContext>
     </div>
   );
 };
 
-export default ReadmePreviewer;
+export default NoteMaker;
